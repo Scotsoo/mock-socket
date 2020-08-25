@@ -122,7 +122,7 @@ class SocketIO extends EventTarget {
   /*
    * Submits an event to the server with a payload
    */
-  emit(event, ...data) {
+  emit(event, data) {
     if (this.readyState !== SocketIO.OPEN) {
       throw new Error('SocketIO is already in CLOSING or CLOSED state');
     }
@@ -237,13 +237,11 @@ class SocketIO extends EventTarget {
   dispatchEvent(event, ...customArguments) {
     const eventName = event.type;
     const listeners = this.listeners[eventName];
-
     if (!Array.isArray(listeners)) {
       return false;
     }
-
     listeners.forEach(listener => {
-      if (customArguments.length > 0) {
+      if (customArguments.length > 0 && JSON.stringify(customArguments) !== JSON.stringify(event.data)) {
         listener.apply(this, customArguments);
       } else {
         // Regular WebSockets expect a MessageEvent but Socketio.io just wants raw data
